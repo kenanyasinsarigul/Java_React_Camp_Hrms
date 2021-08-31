@@ -1,0 +1,117 @@
+import React from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import TechnologyService from "../../services/TechnologyService";
+import { Card, Table, Button, Form, Grid } from "semantic-ui-react";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+
+export default function UpdateTechnology({ cvId, updateCvValues }) {
+    let [technologies, setTechnologies] = useState([]);
+
+    let technologyService = new TechnologyService();
+    useEffect(() => {
+        let technologyService = new TechnologyService();
+        technologyService.getByCvId(cvId).then((result) => {
+            setTechnologies(result.data.data);
+        });
+    }, [cvId]);
+
+    let technologyAddSchema = Yup.object().shape({
+        name: Yup.string()
+            .required("Bu alan zorunludur")
+            .min(2, "Minimum 2 karakter uzunlugunda olmalıdır"),
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            name: "",
+        },
+        validationSchema: technologyAddSchema,
+        onSubmit: (values) => {
+            values.cvId = cvId;
+            technologyService
+                .addScholl(values)
+                .then((result) => {
+                    toast.success(result.data.message)
+                    technologyService.getByCvId(cvId).then((result) => {
+                        setTechnologies(result.data.data)
+                    })
+                    updateCvValues();
+                })
+                .catch((result) => {
+                    toast.error(result.response.data.message)
+                });
+        },
+    });
+
+    const handleDeleteTechnology = (technologyId) => {
+        technologyService.deleteSchool(technologyId).then((result) => {
+            toast.success(result.data.message)
+            technologyService.getByCvId(cvId).then((result) => {
+                setTechnologies(result.data.data)
+            })
+            updateCvValues();
+        }).catch((result) => {
+            toast.error(result.response.data.message)
+        })
+    }
+
+    return (
+        <div>
+            <Grid stackable>
+                <Grid.Column width={8}>
+                    <Card fluid>
+                        <Card.Content header={"TEKNOLOJİ EKLE"} />
+                        <Card.Content>
+                            <Form onSubmit={formik.handleSubmit}>
+                                <label>
+                                    <b>Teknoloji Adı</b>
+                                </label>
+                                <Form.Input
+                                    fluid
+                                    placeholder="Teknoloji Adı Adı"
+                                    type="text"
+                                    name="name"
+                                    style={{ marginTop: '1em' }}
+                                    value={formik.values.name}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                />
+                                {formik.errors.name && formik.touched.name && (
+                                    <div className={"ui pointing red basic label"}>
+                                        {formik.errors.name}
+                                    </div>
+                                )}
+                                <Button fluid color="green" type="submit">Ekle</Button>
+                            </Form>
+                        </Card.Content>
+                    </Card>
+                </Grid.Column>
+                <Grid.Column width={8}>
+                    <Table celled>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>TEKNOLOJİ</Table.HeaderCell>
+                                <Table.HeaderCell>SİL</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+
+                        <Table.Body>
+                            {technologies?.map((technology) => (
+                                <Table.Row key={technology.id}>
+                                    <Table.Cell>{technology.name}</Table.Cell>
+                                    <Table.Cell>
+                                        <Button color="red" icon="x" circular onClick={() => handleDeleteTechnology(technology.id)}>
+                                        </Button>
+                                    </Table.Cell>
+                                </Table.Row>
+                            ))}
+                        </Table.Body>
+                    </Table>
+                </Grid.Column>
+            </Grid>
+        </div>
+    );
+}
