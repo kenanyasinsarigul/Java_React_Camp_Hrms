@@ -8,7 +8,7 @@
 <br>
 
 <p align="center">
-  <h2 align="center">Java_React_Camp_Hrms</h2>
+  <h2 align="center">Java_React_Camp_Hrms (04.2021)</h2>
   <p align="center">
     Frontend : <a href="https://github.com/kenanyasinsarigul/Java_React_Camp_Hrms/tree/main/Frontend">REACT</a>
     Backend : <a href="https://github.com/kenanyasinsarigul/Java_React_Camp_Hrms/tree/main/Backend">JAVA</a>
